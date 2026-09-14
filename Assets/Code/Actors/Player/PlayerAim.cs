@@ -8,9 +8,10 @@ public class PlayerAim : MonoBehaviour
     [SerializeField] private LayerMask groundMask;
 
     private bool _isAiming;
+    private Vector3 _aimPoint;
 
     public bool IsAiming => _isAiming;
-
+    public Vector3 AimPoint => _aimPoint;
     private void Update()
     {
         _isAiming = Mouse.current != null && Mouse.current.rightButton.isPressed;
@@ -23,9 +24,15 @@ public class PlayerAim : MonoBehaviour
 
         Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundMask))
+        Plane aimPlane = new Plane(
+            Vector3.up,
+            new Vector3(0f, transform.position.y, 0f));
+
+        if (aimPlane.Raycast(ray, out float distance))
         {
-            Vector3 direction = hit.point - transform.position;
+            _aimPoint = ray.GetPoint(distance);
+
+            Vector3 direction = _aimPoint - transform.position;
 
             direction.y = 0f;
 

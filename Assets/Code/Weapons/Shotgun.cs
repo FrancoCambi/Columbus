@@ -23,8 +23,12 @@ public class Shotgun : Weapon
     [SerializeField] private float reloadInterval = 0.5f;
 
     private Coroutine _reloadCoroutine;
+    private Collider[] _playerColliders;
+
+    private Rigidbody _rigidbody;
 
     private PlayerFire _playerFire;
+    private PlayerAim _playerAim;
 
     private bool _isReloading;
     private bool _pickedUp;
@@ -35,8 +39,27 @@ public class Shotgun : Weapon
     private void Start()
     {
         _playerFire = weaponHolder.GetComponentInParent<PlayerFire>();
+        _playerAim = weaponHolder.GetComponentInParent<PlayerAim>();
+
+        _playerColliders = _playerFire.GetComponentsInParent<Collider>();
+
+        IgnorePlayerCollision();
+
+        _rigidbody = GetComponentInChildren<Rigidbody>();
     }
 
+    private void IgnorePlayerCollision()
+    {
+        Collider[] weaponColliders = GetComponentsInChildren<Collider>();
+
+        foreach (Collider weaponCollider in weaponColliders)
+        {
+            foreach (Collider playerCollider in _playerColliders)
+            {
+                Physics.IgnoreCollision(weaponCollider, playerCollider);
+            }
+        }
+    }
     public override void Pickup()
     {
         if (_pickedUp)
@@ -46,6 +69,12 @@ public class Shotgun : Weapon
 
         transform.SetParent(weaponHolder);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+        if (_rigidbody  != null)
+        {
+            _rigidbody.isKinematic = true;
+            _rigidbody.useGravity = false;
+        }
 
         if (_playerFire != null)
         {
@@ -83,7 +112,11 @@ public class Shotgun : Weapon
 
         for (int i = 0; i < pellets; i++)
         {
-            Quaternion rotation = muzzle.rotation;
+            Vector3 direction = _playerAim.AimPoint - muzzle.position;
+            direction.y = 0f;
+            direction.Normalize();
+
+            Quaternion rotation = Quaternion.LookRotation(direction);
 
             float randomX = UnityEngine.Random.Range(-spread, spread);
             float randomY = UnityEngine.Random.Range(-spread, spread);
@@ -162,6 +195,24 @@ public class Shotgun : Weapon
         _reloadCoroutine = null;
 
         Debug.Log("Reload complete");
+    }
+
+    public override void Drop(Vector3 dropPosition)
+    {
+        _pickedUp = false;
+
+        transform.SetParent(null);
+
+        transform.position = dropPosition + transform.forward * 0.8f;
+        transform.rotation = Quaternion.identity;
+
+        if (_rigidbody != null)
+        {
+            _rigidbody.isKinematic = false;
+            _rigidbody.useGravity = true;
+        }
+
+        Debug.Log("Weapon dropped");
     }
 
 }
