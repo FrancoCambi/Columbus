@@ -3,6 +3,13 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     public float lifetime = 4f;
+
+    private int damage;
+
+    public void Initialize(int damageAmount)
+    {
+        damage = damageAmount;
+    }
     void Start()
     {
         Destroy(gameObject, lifetime);
@@ -57,6 +64,15 @@ public class Projectile : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         Debug.Log("Projectil choco con; " +  collision.gameObject.name);
+
+        Health health = collision.collider.GetComponentInParent<Health>();
+
+        if (health != null)
+        {
+            Debug.Log("encontro health - daño: " + damage);
+            health.TakeDamage(damage);
+        }
+
         Destroy(gameObject);
     }
 }

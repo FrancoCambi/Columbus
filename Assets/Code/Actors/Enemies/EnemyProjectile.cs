@@ -6,6 +6,12 @@ public class EnemyProjectile : MonoBehaviour
     public float lifeTime = 4f;
     public int damage = 10;
 
+    public void Initialize(float projectileSpeed, int projectileDamage)
+    {
+        speed = projectileSpeed;
+        damage = projectileDamage;
+    }
+
     void Start()
     {
         Destroy(gameObject, lifeTime);

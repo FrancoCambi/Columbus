@@ -6,7 +6,7 @@ public class EnemyFF : MonoBehaviour
     public Transform player;
     public GameObject projectilePrefab;
     public Transform firePoint;
-
+    [SerializeField] private float projectileSpeed = 20f;
     public float combatDistance = 12f;
     public float fireRate = 2f;
     public float repositionCooldown = 3.5f;
@@ -55,7 +55,17 @@ public class EnemyFF : MonoBehaviour
     {
         if (projectilePrefab != null && firePoint != null)
         {
-            Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+            GameObject projectile = Instantiate(
+                projectilePrefab,
+                firePoint.position,
+                firePoint.rotation);
+
+            EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
+
+            if (projectileScript != null)
+            {
+                projectileScript.Initialize(projectileSpeed, 10);
+            }
         }
     }
 
