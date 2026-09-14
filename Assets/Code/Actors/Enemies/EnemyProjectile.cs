@@ -2,35 +2,34 @@ using UnityEngine;
 
 public class EnemyProjectile : MonoBehaviour
 {
-    public float speed = 15f;
-    public float lifeTime = 4f;
-    public int damage = 10;
+    [Header("Settings")]
+    [SerializeField] private float lifeTime = 4f;
+    [SerializeField] private int damage = 10;
 
-    public void Initialize(float projectileSpeed, int projectileDamage)
-    {
-        speed = projectileSpeed;
-        damage = projectileDamage;
-    }
+    private float _projectileSpeed;
 
-    void Start()
+    private void Start()
     {
         Destroy(gameObject, lifeTime);
     }
 
-    void Update()
+    private void Update()
     {
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.Translate(_projectileSpeed * Time.deltaTime * Vector3.forward);
     }
 
-    void OnTriggerEnter(Collider other)
+    public void Initialize(float projectileSpeed, int projectileDamage)
     {
-        if (other.CompareTag("Enemy")) return; // Ignora colisiones con otros enemigos
+        _projectileSpeed = projectileSpeed;
+        damage = projectileDamage;
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        Health health = other.GetComponent<Collider>().GetComponentInParent<Health>();
 
-        // Busca si lo que chocó tiene vida, y si la tiene, le aplica daño
-        Health targetHealth = other.GetComponent<Health>();
-        if (targetHealth != null)
+        if (health != null)
         {
-            targetHealth.TakeDamage(damage);
+            health.TakeDamage(damage);
         }
 
         Destroy(gameObject);

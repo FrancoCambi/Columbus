@@ -14,20 +14,7 @@ public class PlayerLoot : MonoBehaviour
         Loot closestLoot = FindClosestLoot();
 
         if (closestLoot != null && pickupAction.action.WasPressedThisFrame())
-        {
             closestLoot.Pickup();
-
-            if (closestLoot is Weapon weapon)
-            {
-                PlayerFire playerFire = GetComponent<PlayerFire>();
-
-                if (playerFire != null)
-                {
-                    playerFire.SetWeapon(weapon);
-                }
-            }
-        }
-
     }
 
     private Loot FindClosestLoot()

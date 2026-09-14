@@ -8,11 +8,4 @@ public class PlayerCharacter : MonoBehaviour
 
     public Transform SpawnPoint => spawnPoint;
     public Transform CameraPoint => cameraPoint;
-
-    public bool IsDead { get; private set; }
-
-    public void Die()
-    {
-        IsDead = true;
-    }
 }

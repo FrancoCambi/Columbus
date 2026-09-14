@@ -24,17 +24,11 @@ public class PlayerInteraction : MonoBehaviour
         Interactable closestInteractable = null;
         float closestDistance = interactionRange;
 
-        Interactable[] interactables = FindObjectsByType<Interactable>(
-            FindObjectsInactive.Exclude,
-            FindObjectsSortMode.None
-        );
+        Interactable[] interactables = FindObjectsByType<Interactable>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
         foreach (Interactable interactable in interactables)
         {
-            float distance = Vector3.Distance(
-                interactable.transform.position,
-                transform.position
-            );
+            float distance = Vector3.Distance(interactable.transform.position, transform.position);
 
             if (distance < closestDistance)
             {

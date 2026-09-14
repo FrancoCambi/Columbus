@@ -1,27 +1,31 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class EnemyFF : MonoBehaviour
 {
-    public Transform player;
-    public GameObject projectilePrefab;
-    public Transform firePoint;
+    [Header("References")]
+    [SerializeField] private Transform player;
+    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private Transform firePoint;
+
+    [Header("Settings")]
     [SerializeField] private float projectileSpeed = 20f;
-    public float combatDistance = 12f;
-    public float fireRate = 2f;
-    public float repositionCooldown = 3.5f;
+    [SerializeField] private float combatDistance = 12f;
+    [SerializeField] private float fireRate = 2f;
+    [SerializeField] private float repositionCooldown = 3.5f;
 
-    private NavMeshAgent agent;
-    private float nextFireTime;
-    private float nextRepositionTime;
+    private NavMeshAgent _agent;
+    private float _nextFireTime;
+    private float _nextRepositionTime;
 
-    void Start()
+    private void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        _agent = GetComponent<NavMeshAgent>();
         if (player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-    void Update()
+    private void Update()
     {
         if (player == null) return;
 
@@ -33,32 +37,29 @@ public class EnemyFF : MonoBehaviour
 
         if (distance > combatDistance)
         {
-            agent.SetDestination(player.position);
+            _agent.SetDestination(player.position);
         }
         else
         {
-            if (Time.time >= nextFireTime)
+            if (Time.time >= _nextFireTime)
             {
                 Shoot();
-                nextFireTime = Time.time + fireRate;
+                _nextFireTime = Time.time + fireRate;
             }
 
-            if (Time.time >= nextRepositionTime)
+            if (Time.time >= _nextRepositionTime)
             {
                 Reposition();
-                nextRepositionTime = Time.time + repositionCooldown;
+                _nextRepositionTime = Time.time + repositionCooldown;
             }
         }
     }
 
-    void Shoot()
+    private void Shoot()
     {
         if (projectilePrefab != null && firePoint != null)
         {
-            GameObject projectile = Instantiate(
-                projectilePrefab,
-                firePoint.position,
-                firePoint.rotation);
+            GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
 
             EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
 
@@ -69,17 +70,16 @@ public class EnemyFF : MonoBehaviour
         }
     }
 
-    void Reposition()
+    private void Reposition()
     {
         // Genera un vector aleatorio dentro de una esfera de 6 metros
         Vector3 randomDirection = Random.insideUnitSphere * 6f;
         randomDirection += transform.position;
 
-        NavMeshHit hit;
         // Valida que el punto aleatorio exista dentro de las áreas caminables
-        if (NavMesh.SamplePosition(randomDirection, out hit, 6f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, 6f, NavMesh.AllAreas))
         {
-            agent.SetDestination(hit.position);
+            _agent.SetDestination(hit.position);
         }
     }
 }

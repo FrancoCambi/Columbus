@@ -10,8 +10,7 @@ public class RoomTrigger : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        RoomCameraController cameraController =
-            FindFirstObjectByType<RoomCameraController>();
+        RoomCameraController cameraController = FindFirstObjectByType<RoomCameraController>();
 
         if (cameraController != null)
         {

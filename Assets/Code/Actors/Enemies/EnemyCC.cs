@@ -1,23 +1,29 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class EnemyCC : MonoBehaviour
 {
-    public Transform player;
-    public float attackDistance = 2f;
-    public int damage = 15;
-    public float attackRate = 1.5f;
+    [Header("References")]
+    [SerializeField] private Transform player;
 
-    private NavMeshAgent agent;
-    private float nextAttackTime;
+    [Header("Settings")]
+    [SerializeField] private float attackDistance = 2f;
+    [SerializeField] private int damage = 15;
+    [SerializeField] private float attackRate = 1.5f;
 
-    void Start()
+    private NavMeshAgent _agent;
+    private float _nextAttackTime;
+    private Health _playerHealth;
+
+    private void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
+        _agent = GetComponent<NavMeshAgent>();
         if (player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
-    }
 
-    void Update()
+        _playerHealth = player.GetComponent<Health>();
+    }
+    private void Update()
     {
         if (player == null) return;
 
@@ -25,28 +31,26 @@ public class EnemyCC : MonoBehaviour
 
         if (distance > attackDistance)
         {
-            agent.isStopped = false;
-            agent.SetDestination(player.position);
+            _agent.isStopped = false;
+            _agent.SetDestination(player.position);
         }
         else
         {
-            agent.isStopped = true;
+            _agent.isStopped = true;
 
             // Lógica de ataque con temporizador
-            if (Time.time >= nextAttackTime)
+            if (Time.time >= _nextAttackTime)
             {
                 AttackPlayer();
-                nextAttackTime = Time.time + attackRate;
+                _nextAttackTime = Time.time + attackRate;
             }
         }
     }
-
-    void AttackPlayer()
+    private void AttackPlayer()
     {
-        Health playerHealth = player.GetComponent<Health>();
-        if (playerHealth != null)
+        if (_playerHealth != null)
         {
-            playerHealth.TakeDamage(damage);
+            _playerHealth.TakeDamage(damage);
         }
     }
 }

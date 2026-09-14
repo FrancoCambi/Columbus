@@ -3,26 +3,23 @@ using UnityEngine.InputSystem;
 
 public class PlayerAim : MonoBehaviour
 {
-    public Camera cam;
-    public LayerMask groundMask;
+    [Header("References")]
+    [SerializeField] private Camera cam;
+    [SerializeField] private LayerMask groundMask;
 
-    public bool isAiming;
-    void Start()
-    {
-        
-    }
+    private bool _isAiming;
 
-    // Update is called once per frame
-    void Update()
+    public bool IsAiming => _isAiming;
+
+    private void Update()
     {
-        isAiming = Mouse.current != null &&
-                   Mouse.current.rightButton.isPressed;
+        _isAiming = Mouse.current != null && Mouse.current.rightButton.isPressed;
     }
 
     private void LateUpdate()
-        // Solo cambia el PlayerMovement cuando se activa el apuntado
     {
-        if (!isAiming) return;
+        // Solo cambia el PlayerMovement cuando se activa el apuntado
+        if (!_isAiming) return;
 
         Ray ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
 
@@ -34,6 +31,7 @@ public class PlayerAim : MonoBehaviour
 
             if (direction.sqrMagnitude > 0.01f)
             {
+
                 transform.rotation = Quaternion.LookRotation(direction);
             }
         }

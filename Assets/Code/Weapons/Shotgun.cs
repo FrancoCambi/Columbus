@@ -1,4 +1,7 @@
+using System;
+using System.Collections;
 using UnityEngine;
+
 public class Shotgun : Weapon
 {
     [Header("References")]
@@ -18,14 +21,22 @@ public class Shotgun : Weapon
     [SerializeField] private int currentAmmo = 8;
     [SerializeField] private float reloadStartDelay = 0.5f;
     [SerializeField] private float reloadInterval = 0.5f;
+
+    private Coroutine _reloadCoroutine;
+
+    private PlayerFire _playerFire;
+
+    private bool _isReloading;
+    private bool _pickedUp;
+    private float nextFireTime;
     public override int CurrentAmmo => currentAmmo;
     public override int Damage => damage;
 
-    private bool _isReloading;
-    private Coroutine _reloadCoroutine;
+    private void Start()
+    {
+        _playerFire = weaponHolder.GetComponentInParent<PlayerFire>();
+    }
 
-    private bool _pickedUp;
-    private float nextFireTime;
     public override void Pickup()
     {
         if (_pickedUp)
@@ -35,6 +46,11 @@ public class Shotgun : Weapon
 
         transform.SetParent(weaponHolder);
         transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+        if (_playerFire != null)
+        {
+            _playerFire.SetWeapon(this);
+        }
 
         Debug.Log("Groovy");
     }
@@ -69,8 +85,8 @@ public class Shotgun : Weapon
         {
             Quaternion rotation = muzzle.rotation;
 
-            float randomX = Random.Range(-spread, spread);
-            float randomY = Random.Range(-spread, spread);
+            float randomX = UnityEngine.Random.Range(-spread, spread);
+            float randomY = UnityEngine.Random.Range(-spread, spread);
 
             rotation *= Quaternion.Euler(randomX, randomY, 0f);
 
@@ -99,7 +115,7 @@ public class Shotgun : Weapon
         }
     }
 
-    public override void Reload()
+    public override void Reload(Action onReload)
     {
         if (_isReloading)
             return;
@@ -121,10 +137,10 @@ public class Shotgun : Weapon
             return;
         }
 
-        _reloadCoroutine = StartCoroutine(ReloadOneByOne(ammoInventory));
+        _reloadCoroutine = StartCoroutine(ReloadOneByOne(ammoInventory, onReload));
     }
 
-    private System.Collections.IEnumerator ReloadOneByOne(AmmoInventory ammoInventory)
+    private IEnumerator ReloadOneByOne(AmmoInventory ammoInventory, Action onReload)
     {
         _isReloading = true;
 
@@ -134,6 +150,8 @@ public class Shotgun : Weapon
         {
             currentAmmo++;
             ammoInventory.TryUseAmmo();
+
+            onReload?.Invoke();
 
             Debug.Log("Reloading... " + currentAmmo + "/" + magazineCapacity);
 
