@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class AmmoLoot : Loot
 {
+    [Header("Settings")]
     [SerializeField] private int ammoAmount = 8;
 
     public override void Pickup()
@@ -18,15 +19,5 @@ public class AmmoLoot : Loot
         ammoInventory.AddAmmo(ammoAmount);
 
         Destroy(gameObject);
-    }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

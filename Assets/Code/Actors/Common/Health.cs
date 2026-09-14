@@ -25,6 +25,7 @@ public class Health : MonoBehaviour, IResettable
 
         if (_currentHealth <= 0)
         {
+            _currentHealth = 0;
             _deathHandler.Die();
         }
     }
@@ -32,5 +33,6 @@ public class Health : MonoBehaviour, IResettable
     public void ResetState()
     {
         _currentHealth = maxHealth;
+        print($"RESET. VIDA: {_currentHealth}");
     }
 }

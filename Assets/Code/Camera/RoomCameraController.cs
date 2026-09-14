@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class RoomCameraController : MonoBehaviour
 {
-    private GameObject[] currentlyHiddenObjects;
+    private GameObject[] _currentlyHiddenObjects;
 
     public void ChangeRoom(Transform cameraPoint)
     {
@@ -13,15 +13,14 @@ public class RoomCameraController : MonoBehaviour
         ShowPreviousObjects();
 
         // Mover la cámara
-        transform.position = cameraPoint.position;
-        transform.rotation = cameraPoint.rotation;
+        transform.SetPositionAndRotation(cameraPoint.position, cameraPoint.rotation);
 
         // Buscar qué objetos debe ocultar esta cámara
         CameraPoint cameraData = cameraPoint.GetComponent<CameraPoint>();
 
         if (cameraData != null)
         {
-            currentlyHiddenObjects = cameraData.ObjectsToHide;
+            _currentlyHiddenObjects = cameraData.ObjectsToHide;
 
             HideCurrentObjects();
         }
@@ -29,10 +28,10 @@ public class RoomCameraController : MonoBehaviour
 
     private void HideCurrentObjects()
     {
-        if (currentlyHiddenObjects == null)
+        if (_currentlyHiddenObjects == null)
             return;
 
-        foreach (GameObject obj in currentlyHiddenObjects)
+        foreach (GameObject obj in _currentlyHiddenObjects)
         {
             if (obj != null)
                 obj.SetActive(false);
@@ -41,15 +40,15 @@ public class RoomCameraController : MonoBehaviour
 
     private void ShowPreviousObjects()
     {
-        if (currentlyHiddenObjects == null)
+        if (_currentlyHiddenObjects == null)
             return;
 
-        foreach (GameObject obj in currentlyHiddenObjects)
+        foreach (GameObject obj in _currentlyHiddenObjects)
         {
             if (obj != null)
                 obj.SetActive(true);
         }
 
-        currentlyHiddenObjects = null;
+        _currentlyHiddenObjects = null;
     }
 }

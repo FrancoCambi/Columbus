@@ -57,7 +57,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Move()
     {
-        bool isAiming = _playerAim.isAiming;
+        bool isAiming = _playerAim.IsAiming;
 
         float targetSpeed = isAiming ? aimingSpeed : (_sprint ? sprintSpeed : moveSpeed);
 

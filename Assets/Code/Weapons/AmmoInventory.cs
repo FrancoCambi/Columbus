@@ -1,7 +1,11 @@
+using System;
 using UnityEngine;
 
 public class AmmoInventory : MonoBehaviour
 {
+    public event Action OnAmmoObtained;
+
+    [Header("Settings")]
     [SerializeField] private int ammo;
 
     public int Ammo => ammo;
@@ -12,6 +16,8 @@ public class AmmoInventory : MonoBehaviour
             return;
 
         ammo += amount;
+
+        OnAmmoObtained?.Invoke();
     }
 
     public bool HasAmmo()
@@ -27,13 +33,5 @@ public class AmmoInventory : MonoBehaviour
         ammo--;
         return true;
     }
-    void Start()
-    {
-        
-    }
 
-    void Update()
-    {
-        
-    }
 }

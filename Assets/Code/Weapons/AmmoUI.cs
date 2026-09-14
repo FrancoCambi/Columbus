@@ -3,40 +3,41 @@ using UnityEngine;
 
 public class AmmoUI : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private TMP_Text ammoText;
-
-    private AmmoInventory ammoInventory;
-    private PlayerFire playerFire;
-
-    private bool _hasBeenActivated;
-
+    [SerializeField] private AmmoInventory ammoInventory;
+    [SerializeField] private PlayerFire playerFire;
     private void Start()
     {
-        ammoText.gameObject.SetActive(false);
-
-        ammoInventory = FindFirstObjectByType<AmmoInventory>();
-        playerFire = FindFirstObjectByType<PlayerFire>();
+        UpdateText();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (playerFire == null || ammoInventory == null) 
-            return;
+        playerFire.OnFire += UpdateText;
+        playerFire.OnReload += UpdateText;
+        playerFire.OnWeaponChanged += UpdateText;
+        ammoInventory.OnAmmoObtained += UpdateText;
+    }
 
+    private void OnDisable()
+    {
+        playerFire.OnFire -= UpdateText;
+        playerFire.OnReload -= UpdateText;
+        playerFire.OnWeaponChanged -= UpdateText;
+        ammoInventory.OnAmmoObtained -= UpdateText;
+    }
+
+    private void UpdateText()
+    {
         Weapon currentWeapon = playerFire.GetCurrentWeapon();
-
-        if (currentWeapon != null)
+        if (currentWeapon == null)
         {
-            _hasBeenActivated = true;
+            ammoText.enabled = false;
+            return;
         }
 
-        if (!_hasBeenActivated)
-            return;
-
-        ammoText.gameObject.SetActive(true);
-
-            ammoText.text = currentWeapon.CurrentAmmo + " / " + ammoInventory.Ammo;
-    
-        
+        ammoText.enabled = true;
+        ammoText.text = currentWeapon.CurrentAmmo + " / " + ammoInventory.Ammo;
     }
 }
