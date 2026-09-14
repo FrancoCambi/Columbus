@@ -11,6 +11,7 @@ public class Shotgun : Weapon
     [SerializeField] private float spread = 8f;
     [SerializeField] private float projectileSpeed = 20f;
     [SerializeField] private float fireRate = 0.8f;
+    [SerializeField] private int damage = 20;
 
     [Header("Ammo")]
     [SerializeField] private int magazineCapacity = 8;
@@ -18,6 +19,7 @@ public class Shotgun : Weapon
     [SerializeField] private float reloadStartDelay = 0.5f;
     [SerializeField] private float reloadInterval = 0.5f;
     public override int CurrentAmmo => currentAmmo;
+    public override int Damage => damage;
 
     private bool _isReloading;
     private Coroutine _reloadCoroutine;
@@ -77,6 +79,13 @@ public class Shotgun : Weapon
                 muzzle.position,
                 rotation
                 );    
+
+            Projectile projectileScript = projectile.GetComponent<Projectile>();
+
+            if (projectileScript != null)
+            {
+                projectileScript.Initialize(Damage);
+            }
 
             Rigidbody rb = projectile.GetComponentInChildren<Rigidbody>();
 
