@@ -20,6 +20,10 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Acceleration and deceleration")]
     [SerializeField] private float speedChangeRate = 10.0f;
 
+    [Header("Gravity")]
+    [Tooltip("Fuerza de la gravedad aplicada al jugador")]
+    [SerializeField] private float gravity = -9.81f;
+
     [Header("Input References")]
     [SerializeField] private InputActionReference moveAction;
     [SerializeField] private InputActionReference sprintAction;
@@ -28,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
     private PlayerAim _playerAim;
 
     private Vector2 _moveDirection;
+    private float _verticalVelocity; // Controla la caída acumulada
 
     private bool _sprint;
 
@@ -45,6 +50,7 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         ReadInput();
+        ApplyGravity();
         Move();
     }
 
@@ -54,6 +60,19 @@ public class PlayerMovement : MonoBehaviour
         _sprint = sprintAction.action.IsPressed();
     }
 
+    private void ApplyGravity()
+    {
+        // Si toca el suelo, reseteamos la velocidad vertical a un valor negativo pequeño para mantenerlo pegado
+        if (_controller.isGrounded && _verticalVelocity < 0)
+        {
+            _verticalVelocity = -2f;
+        }
+        else
+        {
+            // Acumula la aceleración por gravedad en cada frame
+            _verticalVelocity += gravity * Time.deltaTime;
+        }
+    }
 
     private void Move()
     {
@@ -91,6 +110,9 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
-        _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime));
+        // Combinamos la velocidad de movimiento horizontal con la velocidad de caída vertical (Eje Y)
+        Vector3 motion = (targetDirection.normalized * _speed) + new Vector3(0.0f, _verticalVelocity, 0.0f);
+
+        _controller.Move(motion * Time.deltaTime);
     }
 }
