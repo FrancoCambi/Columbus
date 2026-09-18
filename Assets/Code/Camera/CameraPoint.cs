@@ -6,4 +6,17 @@ public class CameraPoint : MonoBehaviour
     [SerializeField] private GameObject[] objectsToHide;
 
     public GameObject[] ObjectsToHide => objectsToHide;
+
+    public void HideObjects()
+    {
+        foreach (GameObject objectToHide in objectsToHide)
+        {
+            MeshRenderer meshRenderer = objectToHide.GetComponent<MeshRenderer>();
+
+            if (meshRenderer != null)
+            {
+                meshRenderer.enabled = false;
+            }
+        }
+    }
 }

@@ -30,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController _controller;
     private PlayerAim _playerAim;
+    private Transform _cameraTransform;
 
     private Vector2 _moveDirection;
     private float _verticalVelocity; // Controla la caída acumulada
@@ -40,11 +41,11 @@ public class PlayerMovement : MonoBehaviour
     private float _targetRotation = 0.0f;
     private float _rotationVelocity;
 
-
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
         _playerAim = GetComponent<PlayerAim>();
+        _cameraTransform = Camera.main.transform;
     }
 
     private void Update()
@@ -73,22 +74,31 @@ public class PlayerMovement : MonoBehaviour
             _verticalVelocity += gravity * Time.deltaTime;
         }
     }
-
     private void Move()
     {
         bool isAiming = _playerAim.IsAiming;
 
         float targetSpeed = isAiming ? aimingSpeed : (_sprint ? sprintSpeed : moveSpeed);
 
-        if (_moveDirection == Vector2.zero) targetSpeed = 0.0f;
+        if (_moveDirection == Vector2.zero)
+            targetSpeed = 0.0f;
 
-        float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
+        float currentHorizontalSpeed = new Vector3(
+            _controller.velocity.x,
+            0.0f,
+            _controller.velocity.z
+        ).magnitude;
 
         float speedOffset = 0.1f;
 
-        if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
+        if (currentHorizontalSpeed < targetSpeed - speedOffset ||
+            currentHorizontalSpeed > targetSpeed + speedOffset)
         {
-            _speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
+            _speed = Mathf.Lerp(
+                currentHorizontalSpeed,
+                targetSpeed,
+                Time.deltaTime * speedChangeRate
+            );
 
             _speed = Mathf.Round(_speed * 1000f) / 1000f;
         }
@@ -97,22 +107,44 @@ public class PlayerMovement : MonoBehaviour
             _speed = targetSpeed;
         }
 
-        Vector3 inputDirection = new Vector3(_moveDirection.x, 0.0f, _moveDirection.y).normalized;
-
         if (_moveDirection != Vector2.zero)
         {
-            _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg;
-            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, rotationSmoothTime);
+            Vector3 cameraForward = _cameraTransform.forward;
+            Vector3 cameraRight = _cameraTransform.right;
 
-            transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+            cameraForward.y = 0.0f;
+            cameraRight.y = 0.0f;
+
+            cameraForward.Normalize();
+            cameraRight.Normalize();
+
+            Vector3 targetDirection =
+                cameraForward * _moveDirection.y +
+                cameraRight * _moveDirection.x;
+
+            _targetRotation = Mathf.Atan2(
+                targetDirection.x,
+                targetDirection.z
+            ) * Mathf.Rad2Deg;
+
+            float rotation = Mathf.SmoothDampAngle(
+                transform.eulerAngles.y,
+                _targetRotation,
+                ref _rotationVelocity,
+                rotationSmoothTime
+            );
+
+            transform.rotation = Quaternion.Euler(
+                0.0f,
+                rotation,
+                0.0f
+            );
+
+            Vector3 motion =
+                targetDirection.normalized * _speed +
+                new Vector3(0.0f, _verticalVelocity, 0.0f);
+
+            _controller.Move(motion * Time.deltaTime);
         }
-
-
-        Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
-
-        // Combinamos la velocidad de movimiento horizontal con la velocidad de caída vertical (Eje Y)
-        Vector3 motion = (targetDirection.normalized * _speed) + new Vector3(0.0f, _verticalVelocity, 0.0f);
-
-        _controller.Move(motion * Time.deltaTime);
     }
 }

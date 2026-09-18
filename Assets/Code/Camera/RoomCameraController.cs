@@ -33,8 +33,13 @@ public class RoomCameraController : MonoBehaviour
 
         foreach (GameObject obj in _currentlyHiddenObjects)
         {
-            if (obj != null)
-                obj.SetActive(false);
+            if (obj == null)
+                continue;
+
+            MeshRenderer meshRenderer = obj.GetComponent<MeshRenderer>();
+
+            if (meshRenderer != null)
+                meshRenderer.enabled = false;
         }
     }
 
@@ -45,8 +50,13 @@ public class RoomCameraController : MonoBehaviour
 
         foreach (GameObject obj in _currentlyHiddenObjects)
         {
-            if (obj != null)
-                obj.SetActive(true);
+            if (obj == null)
+                continue;
+
+            MeshRenderer meshRenderer = obj.GetComponent<MeshRenderer>();
+
+            if (meshRenderer != null)
+                meshRenderer.enabled = true;
         }
 
         _currentlyHiddenObjects = null;
